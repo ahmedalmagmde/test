@@ -142,23 +142,77 @@ button.send::after{display:inline-block;animation:nudgeL 1.5s ease-in-out infini
   <div class="bot"><div class="foot" id="foot"></div><a class="sidesite" href="https://spcc.sa" target="_blank" rel="noopener" dir="ltr">spcc.sa</a></div>
 </aside>
 <main class="main">
-  <form id="form">
-    <div class="grid" id="grid">
-      <div class="f full"><label id="l_plant"></label><div class="types" id="plants"></div></div>
-      <div class="f full"><label id="l_type"></label><div class="types" id="types"></div></div>
-      <div class="f full"><label id="l_dept"></label><select id="dept" required></select></div>
-      <div class="f full"><label id="l_desc"></label><textarea id="desc" required></textarea></div>
-      <div class="f full"><label id="l_file"></label><input type="file" id="file"></div>
-      <div class="f"><label id="l_date"></label><input type="date" required></div>
-      <div class="f"><label id="l_time"></label><input type="time" required></div>
-      <div class="sec" id="sec"></div>
-      <div class="f"><label id="l_name"></label><input type="text"></div>
-      <div class="f"><label id="l_emp"></label><input type="text" inputmode="numeric"></div>
-      <div class="f full"><label id="l_tel"></label><input type="tel" dir="ltr"></div>
-      <button class="send" id="send" type="submit"></button>
+<form action="https://formspree.io/f/mwlvkezw" method="POST">
+  <div class="grid">
+    
+    <!-- قسم نوع البلاغ -->
+    <div class="full f" id="types">
+      <label>نوع البلاغ <b>*</b></label>
+      <div class="types">
+        <label>
+          <input type="radio" name="نوع_البلاغ" value="عالي الخطورة" required>
+          <span>عالي الخطورة</span>
+        </label>
+        <label>
+          <input type="radio" name="نوع_البلاغ" value="متوسط الخطورة" required>
+          <span>متوسط الخطورة</span>
+        </label>
+        <label>
+          <input type="radio" name="نوع_البلاغ" value="ملاحظة عادية" required>
+          <span>ملاحظة عادية</span>
+        </label>
+      </div>
     </div>
-    <div class="done" id="done"><div class="ck">✓</div><h2 id="d1"></h2><p id="d2" style="color:var(--mute)"></p><button class="back" id="back" type="button"></button></div>
-  </form>
+
+    <!-- قسم المصانع -->
+    <div class="full f" id="plants">
+      <label>المصنع / الموقع <b>*</b></label>
+      <div class="types" id="plants_options">
+        <label>
+          <input type="radio" name="المصنع" value="مصنع بيشة" required>
+          <span>مصنع بيشة</span>
+        </label>
+        <label>
+          <input type="radio" name="المصنع" value="مصنع جازان" required>
+          <span>مصنع جازان</span>
+        </label>
+        <label>
+          <input type="radio" name="المصنع" value="مصنع تهامة" required>
+          <span>مصنع تهامة</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="sec">بيانات المُبلغ</div>
+
+    <div class="f">
+      <label>اسم المُبلغ</label>
+      <input type="text" name="الاسم" placeholder="اختياري">
+    </div>
+    <div class="f">
+      <label>البريد الإلكتروني <b>*</b></label>
+      <input type="email" name="email" required>
+    </div>
+
+    <div class="sec">تفاصيل الواقعة</div>
+    
+    <div class="f">
+      <label>تاريخ الواقعة <b>*</b></label>
+      <input type="date" name="التاريخ" required>
+    </div>
+    <div class="f">
+      <label>وقت الواقعة <b>*</b></label>
+      <input type="time" name="الوقت" required>
+    </div>
+
+    <div class="full f">
+      <label>وصف البلاغ <b>*</b></label>
+      <textarea name="تفاصيل_البلاغ" placeholder="يرجى كتابة تفاصيل المخاطر أو الواقعة هنا..." required></textarea>
+    </div>
+
+    <button type="submit" class="send">إرسال البلاغ</button>
+  </div>
+</form>
 </main>
 </div>
 <a class="site" href="https://spcc.sa" target="_blank" rel="noopener" dir="ltr">spcc.sa</a>
