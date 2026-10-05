@@ -125,6 +125,8 @@ button.send::after{display:inline-block;animation:nudgeL 1.5s ease-in-out infini
 .back{animation:up .6s .55s both}
 @media(hover:none){button.send:hover,.back:hover{transform:none}.types span:hover{border-color:var(--line)}#plants span:hover{border-color:transparent}}
 .main{position:relative;z-index:3}
+.site{display:none}
+@media(max-width:900px){.site{display:block;text-align:center;padding:6px 0 30px;color:var(--mute);font-weight:700;font-size:15px;letter-spacing:1px;text-decoration:none;position:relative;z-index:3}.site::before{content:"";display:block;width:34px;height:2px;background:var(--g2);margin:0 auto 14px;border-radius:2px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -156,6 +158,7 @@ button.send::after{display:inline-block;animation:nudgeL 1.5s ease-in-out infini
   </form>
 </main>
 </div>
+<a class="site" href="https://spcc.sa" target="_blank" rel="noopener" dir="ltr">spcc.sa</a>
 <script>
 const T={
 ar:{dir:'rtl',brand:'شركة أسمنت المنطقة الجنوبية',lang:'English',h1:'نظام بلاغات السلامة',plant:'المصنع',plants:['مصنع تهامة','مصنع جازان','مصنع بيشة'],intro:'من خلال هذه الخدمة يمكنك تقديم بلاغ عن أي ضرر محتمل أو حدث يؤثر على السلامة العامة أو الصحة المهنية أو المنشآت. نأمل تحديد التصنيف بدقة.',
