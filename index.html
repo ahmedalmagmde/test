@@ -123,10 +123,12 @@ button.send::after{display:inline-block;animation:nudgeL 1.5s ease-in-out infini
 @media(hover:none){button.send:hover,.back:hover{transform:none}.types span:hover{border-color:var(--line)}#plants span:hover{border-color:transparent}}
 .main{position:relative;z-index:3}
 .site{display:none}
-.bot{display:flex;flex-direction:column;gap:12px;animation:up .8s .6s both}
+.bot{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:14px 34px;animation:up .8s .6s both}
 .bot .foot{animation:none}
-.sidesite{align-self:flex-start;color:#fff;font-weight:700;font-size:16px;letter-spacing:1.2px;text-decoration:none;padding:7px 18px;border:1px solid rgba(255,255,255,.4);border-radius:99px;background:rgba(255,255,255,.1);transition:.2s}
+.sidesite{color:#fff;font-weight:700;font-size:16px;letter-spacing:1.2px;text-decoration:none;padding:7px 18px;border:1px solid rgba(255,255,255,.4);border-radius:99px;background:rgba(255,255,255,.1);transition:.2s}
 .sidesite:hover{background:#fff;color:var(--g)}
+@media(min-width:901px) and (max-width:1180px){.bot{gap:12px 22px;flex-wrap:nowrap}.foot{font-size:13px;gap:8px}.foot::before{width:18px}.sidesite{font-size:14px;padding:6px 14px;letter-spacing:.8px;white-space:nowrap}}
+@media(min-width:901px) and (max-width:1000px){.bot{flex-wrap:wrap}}
 @media(max-width:900px){.bot{display:none}.site{display:block;text-align:center;padding:6px 0 30px;color:var(--mute);font-weight:700;font-size:15px;letter-spacing:1px;text-decoration:none;position:relative;z-index:3}.site::before{content:"";display:block;width:34px;height:2px;background:var(--g2);margin:0 auto 14px;border-radius:2px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
