@@ -123,15 +123,12 @@ button.send::after{display:inline-block;animation:nudgeL 1.5s ease-in-out infini
 .done h2{animation:up .6s .25s both}
 .done p{animation:up .6s .4s both}
 .back{animation:up .6s .55s both}
-.prog{position:fixed;top:0;inset-inline:0;height:3px;z-index:50;background:linear-gradient(90deg,#5fe3b0,var(--g2));transform:scaleX(0);transform-origin:right;pointer-events:none}
-[dir=ltr] .prog{transform-origin:left}
 @media(hover:none){button.send:hover,.back:hover{transform:none}.types span:hover{border-color:var(--line)}#plants span:hover{border-color:transparent}}
 .main{position:relative;z-index:3}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="prog" id="prog"></div>
 <div class="shell">
 <aside class="side">
   <div class="bgimg"></div>
@@ -202,7 +199,6 @@ document.documentElement.classList.add('rv-on');
  const io=new IntersectionObserver(es=>{let i=0;es.forEach(x=>{if(x.isIntersecting){x.target.style.transitionDelay=(i++%4*90)+'ms';show(x.target);io.unobserve(x.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
  els.forEach(e=>io.observe(e));
 })();
-(function(){const pr=$('prog');let t=0;addEventListener('scroll',()=>{if(t)return;t=1;requestAnimationFrame(()=>{const h=document.documentElement.scrollHeight-innerHeight;pr.style.transform='scaleX('+(h>0?Math.min(1,scrollY/h):0)+')';t=0})},{passive:true})})();
 </script>
 </body>
 </html>
