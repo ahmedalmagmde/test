@@ -288,6 +288,22 @@ function render(){
 $('plants').onchange=e=>{pi=[...$('plants').querySelectorAll('input')].indexOf(e.target);$('sub').textContent=T[lang].plants[pi]};
 $('lang').onclick=()=>{lang=lang==='ar'?'en':'ar';render()};
 $('back').onclick=()=>{$('form').reset();$('done').style.display='none';$('grid').style.display='';render();window.scrollTo(0,0)};
+function sendViaIframe(url,fields,file){
+  return new Promise((res,rej)=>{
+    const name='fs'+Date.now(),ifr=document.createElement('iframe');
+    ifr.name=name;ifr.style.display='none';
+    const fm=document.createElement('form');
+    fm.method='POST';fm.action=url;fm.enctype='multipart/form-data';fm.target=name;fm.style.display='none';
+    fields.forEach(([k,v])=>{const i=document.createElement('input');i.type='hidden';i.name=k;i.value=v;fm.appendChild(i)});
+    const fi=document.createElement('input');fi.type='file';fi.name='attachment';
+    const dt=new DataTransfer();dt.items.add(file);fi.files=dt.files;fm.appendChild(fi);
+    let done=false;
+    const end=ok=>{if(done)return;done=true;clearTimeout(tm);setTimeout(()=>{ifr.remove();fm.remove()},500);ok?res():rej(new Error('timeout'))};
+    const tm=setTimeout(()=>end(false),60000);
+    ifr.addEventListener('load',()=>end(true));
+    document.body.appendChild(ifr);document.body.appendChild(fm);fm.submit();
+  });
+}
 $('form').onsubmit=async e=>{
   e.preventDefault();
   const t=T[lang],ar=T.ar,btn=$('send'),err=$('err'),f=$('file').files[0];
@@ -297,25 +313,23 @@ $('form').onsubmit=async e=>{
   const di=$('dept').selectedIndex-1;
   const to=(MAIL.DEPTS[pi]&&MAIL.DEPTS[pi][ar.depts[di]])||MAIL.PLANTS[pi];
   if(!to){err.textContent=t.err;err.classList.add('on');return}
-  const fd=new FormData();
-  fd.append('_subject','بلاغ سلامة جديد - '+ar.plants[pi]+' - '+ar.types[ti]);
-  fd.append('_template','table');
-  fd.append('_captcha','false');
-  fd.append('المصنع',ar.plants[pi]);
-  fd.append('نوع البلاغ',ar.types[ti]);
-  fd.append('الجهة المعنية',ar.depts[di]);
-  fd.append('وصف الحادث',$('desc').value);
-  fd.append('التاريخ',$('rdate').value);
-  fd.append('الساعة',$('rtime').value);
-  fd.append('الاسم',$('rname').value||'-');
-  fd.append('الرقم الوظيفي',$('remp').value||'-');
-  fd.append('رقم الجوال',$('rtel').value||'-');
-  if(f)fd.append('attachment',f);
+  const fields=[
+    ['_subject','بلاغ سلامة جديد - '+ar.plants[pi]+' - '+ar.types[ti]],
+    ['_template','table'],['_captcha','false'],
+    ['المصنع',ar.plants[pi]],['نوع البلاغ',ar.types[ti]],['الجهة المعنية',ar.depts[di]],
+    ['وصف الحادث',$('desc').value],['التاريخ',$('rdate').value],['الساعة',$('rtime').value],
+    ['الاسم',$('rname').value||'-'],['الرقم الوظيفي',$('remp').value||'-'],['رقم الجوال',$('rtel').value||'-']
+  ];
   btn.disabled=true;btn.textContent=t.sending;
   try{
-    const r=await fetch('https://formsubmit.co/ajax/'+to,{method:'POST',headers:{Accept:'application/json'},body:fd});
-    const d=await r.json().catch(()=>({}));
-    if(!r.ok||d.success===false||d.success==='false')throw new Error(d.message||r.status);
+    if(f){
+      await sendViaIframe('https://formsubmit.co/'+to,fields,f);
+    }else{
+      const fd=new FormData();fields.forEach(([k,v])=>fd.append(k,v));
+      const r=await fetch('https://formsubmit.co/ajax/'+to,{method:'POST',headers:{Accept:'application/json'},body:fd});
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok||d.success===false||d.success==='false')throw new Error(d.message||r.status);
+    }
     $('grid').style.display='none';$('done').style.display='block';
   }catch(x){
     console.error(x);err.textContent=t.err+' ('+(x&&x.message?x.message:x)+')';err.classList.add('on');
