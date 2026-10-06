@@ -131,6 +131,9 @@ button.send::after{display:inline-block;animation:nudgeL 1.5s ease-in-out infini
 @media(min-width:901px) and (max-width:1000px){.bot{flex-wrap:wrap}}
 @media(max-width:900px){.bot{display:none}.site{display:block;text-align:center;padding:6px 0 30px;color:var(--mute);font-weight:700;font-size:15px;letter-spacing:1px;text-decoration:none;position:relative;z-index:3}.site::before{content:"";display:block;width:34px;height:2px;background:var(--g2);margin:0 auto 14px;border-radius:2px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.err{display:none;grid-column:1/-1;color:#b3261e;background:#fdecea;border:1px solid #f5c2bd;border-radius:12px;padding:12px 14px;font-weight:700;line-height:1.7}
+.err.on{display:block}
+button.send:disabled{opacity:.7;cursor:wait}
 </style>
 </head>
 <body>
@@ -149,12 +152,13 @@ button.send::after{display:inline-block;animation:nudgeL 1.5s ease-in-out infini
       <div class="f full"><label id="l_dept"></label><select id="dept" required></select></div>
       <div class="f full"><label id="l_desc"></label><textarea id="desc" required></textarea></div>
       <div class="f full"><label id="l_file"></label><input type="file" id="file"></div>
-      <div class="f"><label id="l_date"></label><input type="date" required></div>
-      <div class="f"><label id="l_time"></label><input type="time" required></div>
+      <div class="f"><label id="l_date"></label><input type="date" id="rdate" required></div>
+      <div class="f"><label id="l_time"></label><input type="time" id="rtime" required></div>
       <div class="sec" id="sec"></div>
-      <div class="f"><label id="l_name"></label><input type="text"></div>
-      <div class="f"><label id="l_emp"></label><input type="text" inputmode="numeric"></div>
-      <div class="f full"><label id="l_tel"></label><input type="tel" dir="ltr"></div>
+      <div class="f"><label id="l_name"></label><input type="text" id="rname"></div>
+      <div class="f"><label id="l_emp"></label><input type="text" id="remp" inputmode="numeric"></div>
+      <div class="f full"><label id="l_tel"></label><input type="tel" id="rtel" dir="ltr"></div>
+      <div class="err" id="err" role="alert"></div>
       <button class="send" id="send" type="submit"></button>
     </div>
     <div class="done" id="done"><div class="ck">✓</div><h2 id="d1"></h2><p id="d2" style="color:var(--mute)"></p><button class="back" id="back" type="button"></button></div>
@@ -163,12 +167,20 @@ button.send::after{display:inline-block;animation:nudgeL 1.5s ease-in-out infini
 </div>
 <a class="site" href="https://spcc.sa" target="_blank" rel="noopener" dir="ltr">spcc.sa</a>
 <script>
+const MAIL={
+  DEFAULT:'a.jaber@spcc.com.sa',  
+  PLANTS:[
+    'a.jaber@spcc.com.sa',  // مصنع تهامة
+    '',                       // مصنع جازان  <- ضع الايميل هنا
+    ''                        // مصنع بيشة   <- ضع الايميل هنا
+  ]
+};
 const T={
 ar:{dir:'rtl',brand:'شركة أسمنت المنطقة الجنوبية',lang:'English',h1:'نظام بلاغات السلامة',plant:'المصنع',plants:['مصنع تهامة','مصنع جازان','مصنع بيشة'],intro:'من خلال هذه الخدمة يمكنك تقديم بلاغ عن أي ضرر محتمل أو حدث يؤثر على السلامة العامة أو الصحة المهنية أو المنشآت. نأمل تحديد التصنيف بدقة.',
-type:'نوع البلاغ',types:['حادث','على وشك الحدوث','اقتراح'],dept:'الجهة المعنية',pick:'اختر الجهة المعنية بالحدث',desc:'وصف الحادث',file:'مرفق توضيحي',date:'التاريخ',time:'الساعة',sec:'بيانات المُبلِّغ (اختيارية)',name:'الاسم الثلاثي',emp:'الرقم الوظيفي',tel:'رقم الجوال',send:'إرسال البلاغ',foot:'السلامة مسؤولية الجميع',back:'العودة إلى القائمة الرئيسية',d1:'تم استلام بلاغك',d2:'شكراً لمساهمتك في بيئة عمل أكثر أماناً.',
+type:'نوع البلاغ',types:['حادث','على وشك الحدوث','اقتراح'],dept:'الجهة المعنية',pick:'اختر الجهة المعنية بالحدث',desc:'وصف الحادث',file:'مرفق توضيحي',date:'التاريخ',time:'الساعة',sec:'بيانات المُبلِّغ (اختيارية)',name:'الاسم الثلاثي',emp:'الرقم الوظيفي',tel:'رقم الجوال',send:'إرسال البلاغ',sending:'جارٍ الإرسال...',err:'تعذّر إرسال البلاغ، تحقق من الاتصال وحاول مرة أخرى.',big:'حجم المرفق يتجاوز 5 ميجابايت.',foot:'السلامة مسؤولية الجميع',back:'العودة إلى القائمة الرئيسية',d1:'تم استلام بلاغك',d2:'شكراً لمساهمتك في بيئة عمل أكثر أماناً.',
 depts:['المحاجر والكسارات','مخازن الحجر الجيري ومنطقة الخزانات الخمسة','السخان الابتدائي والأفران','الطواحين الأولية وصوامع الطواحين','المبرد وصوامع الكلينكر','طواحين الأسمنت وصوامع الأسمنت','التعبئة والتسليم','محطة الطاقة / خزانات وقود الكهرباء','الورشة (الكراج)','معالجة المياه','منطقة السكراب (الخردة)','قسم الأمن والإطفاء','العيادة الطبية','ورشة الصيانة','إدارة المستودعات','أقسام الرعاية والخدمات','إدارة الموارد البشرية','المختبر والجودة','إدارة المبيعات','القسم الكهربائي','الإدارة المالية (المحاسبة)','إدارة هندسة المصنع','قسم التخطيط والتصميم','أقسام الإنتاج','إدارة الصيانة']},
 en:{dir:'ltr',brand:'Southern Province Cement Company',lang:'العربية',h1:'Safety Reporting System',plant:'Plant',plants:['Tahama Plant','Jazan Plant','Bisha Plant'],intro:'Use this service to report any potential harm or event affecting general safety, occupational health, or facilities. Please select the classification accurately.',
-type:'Report type',types:['Incident','Near miss','Suggestion'],dept:'Concerned department',pick:'Select the department concerned',desc:'Description',file:'Attachment',date:'Date',time:'Time',sec:'Reporter details (optional)',name:'Full name',emp:'Employee ID',tel:'Mobile number',send:'Submit report',foot:'Safety is everyone\'s responsibility',back:'Back to main menu',d1:'Your report has been received',d2:'Thank you for helping make our workplace safer.',
+type:'Report type',types:['Incident','Near miss','Suggestion'],dept:'Concerned department',pick:'Select the department concerned',desc:'Description',file:'Attachment',date:'Date',time:'Time',sec:'Reporter details (optional)',name:'Full name',emp:'Employee ID',tel:'Mobile number',send:'Submit report',sending:'Sending...',err:'Could not send the report. Check your connection and try again.',big:'Attachment is larger than 5 MB.',foot:'Safety is everyone\'s responsibility',back:'Back to main menu',d1:'Your report has been received',d2:'Thank you for helping make our workplace safer.',
 depts:['Quarries & Crushers','Limestone Storage & Five-Tank Area','Preheater & Kilns','Raw Mills & Silos','Cooler & Clinker Silos','Cement Mills & Silos','Packing & Dispatch','Power Plant / Fuel Tanks','Garage Workshop','Water Treatment','Scrap Area','Security & Fire','Medical Clinic','Maintenance Workshop','Warehouse Management','Welfare & Services','Human Resources','Laboratory & Quality','Sales','Electrical Department','Finance (Accounting)','Plant Engineering','Planning & Design','Production Departments','Maintenance Management']}};
 let lang='ar',pi=0;
 const $=id=>document.getElementById(id);
@@ -189,7 +201,40 @@ function render(){
 $('plants').onchange=e=>{pi=[...$('plants').querySelectorAll('input')].indexOf(e.target);$('sub').textContent=T[lang].plants[pi]};
 $('lang').onclick=()=>{lang=lang==='ar'?'en':'ar';render()};
 $('back').onclick=()=>{$('form').reset();$('done').style.display='none';$('grid').style.display='';render();window.scrollTo(0,0)};
-$('form').onsubmit=e=>{e.preventDefault();$('grid').style.display='none';$('done').style.display='block'};
+$('form').onsubmit=async e=>{
+  e.preventDefault();
+  const t=T[lang],ar=T.ar,btn=$('send'),err=$('err'),f=$('file').files[0];
+  err.classList.remove('on');
+  if(f&&f.size>5*1024*1024){err.textContent=t.big;err.classList.add('on');return}
+  const ti=[...$('types').querySelectorAll('input')].findIndex(x=>x.checked);
+  const di=$('dept').selectedIndex-1;
+  const to=MAIL.PLANTS[pi]||MAIL.DEFAULT;
+  const fd=new FormData();
+  fd.append('_subject','بلاغ سلامة جديد - '+ar.plants[pi]+' - '+ar.types[ti]);
+  fd.append('_template','table');
+  fd.append('_captcha','false');
+  fd.append('المصنع',ar.plants[pi]);
+  fd.append('نوع البلاغ',ar.types[ti]);
+  fd.append('الجهة المعنية',ar.depts[di]);
+  fd.append('وصف الحادث',$('desc').value);
+  fd.append('التاريخ',$('rdate').value);
+  fd.append('الساعة',$('rtime').value);
+  fd.append('الاسم',$('rname').value||'-');
+  fd.append('الرقم الوظيفي',$('remp').value||'-');
+  fd.append('رقم الجوال',$('rtel').value||'-');
+  if(f)fd.append('attachment',f);
+  btn.disabled=true;btn.textContent=t.sending;
+  try{
+    const r=await fetch('https://formsubmit.co/ajax/'+to,{method:'POST',headers:{Accept:'application/json'},body:fd});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||d.success===false||d.success==='false')throw new Error(d.message||r.status);
+    $('grid').style.display='none';$('done').style.display='block';
+  }catch(x){
+    console.error(x);err.textContent=t.err;err.classList.add('on');
+  }finally{
+    btn.disabled=false;btn.textContent=T[lang].send;
+  }
+};
 render();
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 window.scrollTo(0,0);
@@ -198,7 +243,7 @@ window.addEventListener('pageshow',()=>window.scrollTo(0,0));
 
 document.documentElement.classList.add('rv-on');
 (function(){
- const els=[...document.querySelectorAll('#grid>*')];
+ const els=[...document.querySelectorAll('#grid>*:not(.err)')];
  els.forEach(e=>e.classList.add('rv'));
  const show=e=>{e.classList.add('in');setTimeout(()=>{e.style.transitionDelay=''},1000)};
  if(!('IntersectionObserver' in window)){els.forEach(show);return}
